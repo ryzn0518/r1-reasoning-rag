@@ -1,0 +1,6 @@
+tavily-python
+langchain
+langchain_nvidia_ai_endpoints
+langgraph
+python-dotenv
+openai

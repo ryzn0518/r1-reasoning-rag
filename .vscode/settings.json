@@ -1,0 +1,9 @@
+{
+    "terminal.integrated.env.osx": {
+        "PYTHONPATH": "${workspaceFolder}/src:${workspaceFolder}"
+      }, 
+    "python.envFile": "${workspaceFolder}/.env",
+    "jupyter.notebookFileRoot": "${workspaceFolder}/src",
+    "makefile.configureOnOpen": false,
+    "wcaForGP.enable": true,
+  }
