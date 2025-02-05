@@ -113,7 +113,9 @@ class QAAgent:
         workflow.add_edge("find_missing_information", "validate_retrieval")
     
         workflow.add_edge("answer", END)
-        return workflow.compile()
+        compiled_graph = workflow.compile()
+        compiled_graph.get_graph(xray=1).draw_mermaid_png(output_file_path="agent-architecture.png")
+        return compiled_graph
 
     def run(self, question: str):
         result = self.workflow.invoke({"question": question})
