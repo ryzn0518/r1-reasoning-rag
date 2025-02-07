@@ -8,7 +8,7 @@ class Prompts:
         You will be provided with a question and chunks of text that may or may not contain the answer to the question.
         Your role is to carefullylook through the chunks of text provide a JSON response with three fields:
         1. status: whether the retrieved chunks contain the answer to the question.
-        - 'VALID' if the retrieved chunks contain the answer to the question, 'INVALID' otherwise. Nothing else.
+        - 'COMPLETE' if the retrieved chunks contain the answer to the question, 'INCOMPLETE' otherwise. Nothing else.
         
         2. useful_information: the useful information from the retrieved chunks. Be concise and direct.
         - if there is no useful information, set this to an empty string.
@@ -24,7 +24,7 @@ class Prompts:
         
         Here is an example of the response format:
         
-        {{"status": "VALID",
+        {{"status": "COMPLETE",
         "useful_information": "The capital city of Canada is Ottawa.",
         "missing_information": "The capital city of Mexico"}}
     

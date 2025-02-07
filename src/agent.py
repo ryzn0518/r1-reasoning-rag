@@ -49,7 +49,7 @@ class QAAgent:
         print("\nValidation Results:")
         print("-------------------")
         print("Decision:", router_decision)
-        if router_decision == "INVALID":
+        if router_decision == "INCOMPLETE":
             print("Missing Information:", missing_information)
 
         return {"router_decision": router_decision, "retrieved_context": retrieved_context, "useful_information": useful_information, "missing_information": missing_information, "reasoning": reasoning}
@@ -84,23 +84,23 @@ class QAAgent:
     def create_workflow(self):
         workflow = StateGraph(GraphState)
         
-        workflow.add_node("retrieve", self.retrieve)
-        workflow.add_node("validate_retrieval", self.validate_retrieval)
+        workflow.add_node("retrieve context", self.retrieve)
+        workflow.add_node("is retrieved context complete?", self.validate_retrieval)
         workflow.add_node("answer", self.answer)
-        workflow.add_node("find_missing_information", self.find_missing_information)
+        workflow.add_node("find missing information", self.find_missing_information)
         
-        workflow.set_entry_point("retrieve")
-        workflow.add_edge("retrieve", "validate_retrieval")
+        workflow.set_entry_point("retrieve context")
+        workflow.add_edge("retrieve context", "is retrieved context complete?")
         
         workflow.add_conditional_edges(
-            "validate_retrieval",
+            "is retrieved context complete?",
             self.decide_route,
             {
-                "VALID": "answer",
-                "INVALID": "find_missing_information"
+                "COMPLETE": "answer",
+                "INCOMPLETE": "find missing information"
             }
         )
-        workflow.add_edge("find_missing_information", "validate_retrieval")
+        workflow.add_edge("find missing information", "is retrieved context complete?")
     
         workflow.add_edge("answer", END)
         compiled_graph = workflow.compile()
