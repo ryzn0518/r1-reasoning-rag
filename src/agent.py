@@ -25,6 +25,7 @@ class QAAgent:
     def retrieve(self, state: GraphState):
         print("\n=== STEP 1: RETRIEVAL ===")
         question = state["question"]
+        print("Searching for:", question)
         result = self.tavily_client.search(question, max_results=3)    
         retrieved_context = "\n".join([r["content"] for r in result["results"]])
         return {"retrieved_context": retrieved_context}
@@ -33,22 +34,22 @@ class QAAgent:
         print("\n=== STEP 2: VALIDATION ===")
         question = state["question"]
         retrieved_context = state["retrieved_context"]
-        print("analyzing retrieved context...")
+        print("Retrieved Context: \n", retrieved_context)
         validation_chain = Prompts.VALIDATE_RETRIEVAL | r1
         llm_output = validation_chain.invoke({"retrieved_context": retrieved_context, "question": question}).content
         
         reasoning = llm_output.split("<think>")[1].split("</think>")[0].strip()
         response = llm_output.split("</think>")[1].strip()
-        
+        print("reasoning:", reasoning)
         strcutured_response = json.loads(response)
         
         router_decision = strcutured_response["status"]
         missing_information = strcutured_response["missing_information"]
         useful_information = strcutured_response["useful_information"]
-        
-        print("\nValidation Results:")
-        print("-------------------")
-        print("Decision:", router_decision)
+        print("router decision:", router_decision)
+        print("missing information:", missing_information)
+        print("useful information:", useful_information)
+
         if router_decision == "INCOMPLETE":
             print("Missing Information:", missing_information)
 
@@ -74,7 +75,7 @@ class QAAgent:
         previously_retrieved_useful_information = state["useful_information"]
         newly_retrieved_context = "\n".join([r["content"] for r in tavily_query["results"]])
         combined_context = f"{previously_retrieved_useful_information}\n{newly_retrieved_context}"
-        
+        print("newly retrieved context:", newly_retrieved_context)
         return {"retrieved_context": combined_context}
 
     @staticmethod
