@@ -36,12 +36,15 @@ class QAAgent:
         retrieved_context = state["retrieved_context"]
         print("Retrieved Context: \n", retrieved_context)
         validation_chain = Prompts.VALIDATE_RETRIEVAL | r1
-        llm_output = validation_chain.invoke({"retrieved_context": retrieved_context, "question": question}).content
-        
-        reasoning = llm_output.split("<think>")[1].split("</think>")[0].strip()
-        response = llm_output.split("</think>")[1].strip()
-        print("reasoning:", reasoning)
-        strcutured_response = json.loads(response)
+        print(f"prompt: {Prompts.VALIDATE_RETRIEVAL.format(question=question, retrieved_context=retrieved_context)}")
+        print(f"r1:", r1)
+        llm_output = validation_chain.invoke({"retrieved_context": retrieved_context, "question": question})
+        print("LLM output:", llm_output)
+        llm_output = llm_output.content
+        # reasoning = llm_output.split("<think>")[1].split("</think>")[0].strip()
+        # response = llm_output.split("</think>")[1].strip()
+        # print("reasoning:", reasoning)
+        strcutured_response = json.loads(llm_output)
         
         router_decision = strcutured_response["status"]
         missing_information = strcutured_response["missing_information"]
@@ -53,7 +56,7 @@ class QAAgent:
         if router_decision == "INCOMPLETE":
             print("Missing Information:", missing_information)
 
-        return {"router_decision": router_decision, "retrieved_context": retrieved_context, "useful_information": useful_information, "missing_information": missing_information, "reasoning": reasoning}
+        return {"router_decision": router_decision, "retrieved_context": retrieved_context, "useful_information": useful_information, "missing_information": missing_information, "reasoning": "reasoning"}
 
     def answer(self, state: GraphState):
         print("\n=== STEP 3: ANSWERING ===")
@@ -62,9 +65,10 @@ class QAAgent:
 
         answer_chain = Prompts.ANSWER_QUESTION | r1
         llm_output = answer_chain.invoke({"retrieved_context": context, "question": question}).content
-        reasoning = llm_output.split("<think>")[1].split("</think>")[0].strip()
-        answer = llm_output.split("</think>")[1].strip()
-        return {"answer_to_question": answer}
+        print(f"answer: {llm_output}")
+        # reasoning = llm_output.split("<think>")[1].split("</think>")[0].strip()
+        # answer = llm_output.split("</think>")[1].strip()
+        return {"answer_to_question": llm_output}
 
     def find_missing_information(self, state: GraphState):
         print("\n=== STEP 2b: FINDING MISSING INFORMATION ===")
@@ -114,4 +118,5 @@ class QAAgent:
 
 if __name__ == "__main__":
     agent = QAAgent()
-    agent.run("Who is George Washington?")
+    # agent.run("Deepseek的公司负责人主要有哪几家公司，他更擅长哪一个领域？")
+    agent.run("苏剑林老师现在的研究方向是什么，在哪个公司吗，你可以在arxiv上找到他相关的论文方向吗？具体是什么论文，在哪个公司发表的")
